@@ -1,145 +1,670 @@
 {
-  "info": {
-    "name": "SQLhelper - Collection",
-    "_postman_id": "sqlhelper-collection",
-    "description": "Colección para probar manualmente la API SQLhelper (health, detect, parse)",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "Health Check",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:3000/health",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "3000",
-          "path": [
-            "health"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Detect Dialect - MySQL Example",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"sql\": \"CREATE TABLE users (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(50));\"\n}"
-        },
-        "url": {
-          "raw": "http://localhost:3000/api/detect",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "3000",
-          "path": [
-            "api",
-            "detect"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Detect Dialect - PostgreSQL Example",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"sql\": \"CREATE TABLE posts (id SERIAL PRIMARY KEY, data JSONB);\"\n}"
-        },
-        "url": {
-          "raw": "http://localhost:3000/api/detect",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "3000",
-          "path": [
-            "api",
-            "detect"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Parse DDL - MySQL (Mermaid + DBML + JSON)",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"sql\": \"CREATE TABLE users (\\n  id INT AUTO_INCREMENT PRIMARY KEY,\\n  username VARCHAR(50) NOT NULL UNIQUE,\\n  email VARCHAR(255) NOT NULL,\\n  department_id INT,\\n  INDEX idx_email (email),\\n  FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL\\n) ENGINE=InnoDB;\"\n}"
-        },
-        "url": {
-          "raw": "http://localhost:3000/api/parse",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "3000",
-          "path": [
-            "api",
-            "parse"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Parse DDL - PostgreSQL (infer dialect + options)",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"sql\": \"CREATE TABLE posts (\\n  id SERIAL PRIMARY KEY,\\n  data JSONB,\\n  created_at TIMESTAMP DEFAULT now()\\n);\",\n  \"options\": { \"inferDialect\": true, \"includeIndexes\": true }\n}"
-        },
-        "url": {
-          "raw": "http://localhost:3000/api/parse",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "3000",
-          "path": [
-            "api",
-            "parse"
-          ]
-        }
-      },
-      "response": []
-    }
-  ]
+	"info": {
+		"_postman_id": "sqlhelper-api-tests",
+		"name": "SQLhelper API",
+		"description": "Comprehensive test suite for SQLhelper Backend API including health checks, dialect detection, and SQL parsing for all supported dialects.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Health Check",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status code is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Response has correct structure', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('status');",
+							"    pm.expect(jsonData).to.have.property('timestamp');",
+							"    pm.expect(jsonData).to.have.property('version');",
+							"});",
+							"",
+							"pm.test('Status is healthy', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.status).to.equal('healthy');",
+							"});",
+							"",
+							"pm.test('Response time is acceptable', function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/health",
+					"host": ["{{baseUrl}}"],
+					"path": ["health"]
+				},
+				"description": "Health check endpoint to verify API availability"
+			},
+			"response": []
+		},
+		{
+			"name": "Detect MySQL Dialect",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status code is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Response has correct structure', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('dialect');",
+							"    pm.expect(jsonData).to.have.property('confidence');",
+							"    pm.expect(jsonData).to.have.property('reasons');",
+							"});",
+							"",
+							"pm.test('Detected dialect is MySQL', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.dialect).to.equal('mysql');",
+							"});",
+							"",
+							"pm.test('Confidence is above 0.5', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.confidence).to.be.above(0.5);",
+							"});",
+							"",
+							"pm.test('Reasons array is not empty', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.reasons).to.be.an('array').that.is.not.empty;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"sql\": \"CREATE TABLE users (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255));\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/detect",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "detect"]
+				},
+				"description": "Test MySQL dialect detection using AUTO_INCREMENT keyword"
+			},
+			"response": []
+		},
+		{
+			"name": "Detect PostgreSQL Dialect",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status code is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Detected dialect is PostgreSQL', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.dialect).to.equal('postgres');",
+							"});",
+							"",
+							"pm.test('Confidence is above 0.5', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.confidence).to.be.above(0.5);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"sql\": \"CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR(255));\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/detect",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "detect"]
+				},
+				"description": "Test PostgreSQL dialect detection using SERIAL type"
+			},
+			"response": []
+		},
+		{
+			"name": "Parse MySQL DDL",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status code is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Response has success flag', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test('Response has data object', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData.data).to.have.property('schema');",
+							"    pm.expect(jsonData.data).to.have.property('mermaid');",
+							"    pm.expect(jsonData.data).to.have.property('dbml');",
+							"    pm.expect(jsonData.data).to.have.property('json');",
+							"});",
+							"",
+							"pm.test('Schema contains tables', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data.schema).to.have.property('tables');",
+							"    pm.expect(jsonData.data.schema.tables).to.be.an('array').that.is.not.empty;",
+							"});",
+							"",
+							"pm.test('Metadata is present', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('metadata');",
+							"    pm.expect(jsonData.metadata).to.have.property('dialectUsed');",
+							"    pm.expect(jsonData.metadata).to.have.property('tablesFound');",
+							"    pm.expect(jsonData.metadata).to.have.property('parseTimeMs');",
+							"});",
+							"",
+							"pm.test('Dialect used is MySQL', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.metadata.dialectUsed).to.equal('mysql');",
+							"});",
+							"",
+							"pm.test('Tables found count is correct', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.metadata.tablesFound).to.equal(2);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"sql\": \"CREATE TABLE users (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(50) NOT NULL UNIQUE, email VARCHAR(100) NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP); CREATE TABLE posts (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT NOT NULL, title VARCHAR(200) NOT NULL, content TEXT, FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE);\",\n  \"dialect\": \"mysql\",\n  \"options\": {\n    \"includeIndexes\": true,\n    \"includeActions\": true\n  }\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/parse",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "parse"]
+				},
+				"description": "Test MySQL DDL parsing with foreign keys and constraints"
+			},
+			"response": []
+		},
+		{
+			"name": "Parse PostgreSQL DDL",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status code is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Parse was successful', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test('Dialect used is PostgreSQL', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.metadata.dialectUsed).to.equal('postgres');",
+							"});",
+							"",
+							"pm.test('Mermaid diagram is generated', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data.mermaid).to.be.a('string').that.is.not.empty;",
+							"    pm.expect(jsonData.data.mermaid).to.include('erDiagram');",
+							"});",
+							"",
+							"pm.test('DBML is generated', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data.dbml).to.be.a('string').that.is.not.empty;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"sql\": \"CREATE TABLE customers (id SERIAL PRIMARY KEY, name VARCHAR(100) NOT NULL, email VARCHAR(100) UNIQUE); CREATE TABLE orders (id SERIAL PRIMARY KEY, customer_id INTEGER REFERENCES customers(id), order_date TIMESTAMP DEFAULT NOW(), total DECIMAL(10,2));\",\n  \"dialect\": \"postgres\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/parse",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "parse"]
+				},
+				"description": "Test PostgreSQL DDL parsing with SERIAL type and inline REFERENCES"
+			},
+			"response": []
+		},
+		{
+			"name": "Parse SQLite DDL",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status code is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Parse was successful', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test('Dialect used is SQLite', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.metadata.dialectUsed).to.equal('sqlite');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"sql\": \"CREATE TABLE products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, price REAL, stock INTEGER DEFAULT 0);\",\n  \"dialect\": \"sqlite\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/parse",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "parse"]
+				},
+				"description": "Test SQLite DDL parsing with AUTOINCREMENT"
+			},
+			"response": []
+		},
+		{
+			"name": "Parse SQL Server DDL",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status code is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Parse was successful', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test('Dialect used is SQL Server', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.metadata.dialectUsed).to.equal('mssql');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"sql\": \"CREATE TABLE employees (id INT IDENTITY(1,1) PRIMARY KEY, name NVARCHAR(100) NOT NULL, department NVARCHAR(50), salary DECIMAL(10,2));\",\n  \"dialect\": \"mssql\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/parse",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "parse"]
+				},
+				"description": "Test SQL Server DDL parsing with IDENTITY"
+			},
+			"response": []
+		},
+		{
+			"name": "Parse Oracle DDL",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status code is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Parse was successful', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test('Dialect used is Oracle', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.metadata.dialectUsed).to.equal('oracle');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"sql\": \"CREATE TABLE departments (id NUMBER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY, name VARCHAR2(100) NOT NULL, location VARCHAR2(100));\",\n  \"dialect\": \"oracle\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/parse",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "parse"]
+				},
+				"description": "Test Oracle DDL parsing with GENERATED AS IDENTITY"
+			},
+			"response": []
+		},
+		{
+			"name": "Parse with Auto-Detection",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status code is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Parse was successful', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test('Dialect was auto-detected', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.metadata.dialectUsed).to.be.oneOf(['mysql', 'postgres', 'sqlite', 'mssql', 'oracle']);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"sql\": \"CREATE TABLE users (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255));\",\n  \"options\": {\n    \"inferDialect\": true\n  }\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/parse",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "parse"]
+				},
+				"description": "Test auto-detection of SQL dialect without specifying dialect"
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid SQL - Missing Required Field",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status code is 400', function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test('Response contains error message', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('error');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"dialect\": \"mysql\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/parse",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "parse"]
+				},
+				"description": "Test validation error when SQL field is missing"
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid SQL - Unsupported Dialect",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status code is 400', function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test('Error indicates unsupported dialect', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.error).to.exist;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"sql\": \"CREATE TABLE test (id INT);\",\n  \"dialect\": \"mongodb\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/parse",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "parse"]
+				},
+				"description": "Test error handling for unsupported dialect"
+			},
+			"response": []
+		},
+		{
+			"name": "Complex Schema with Relationships",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status code is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Parse was successful', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test('Multiple tables parsed', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.metadata.tablesFound).to.be.above(2);",
+							"});",
+							"",
+							"pm.test('Foreign keys are captured', function () {",
+							"    const jsonData = pm.response.json();",
+							"    const schema = jsonData.data.schema;",
+							"    let hasForeignKeys = false;",
+							"    schema.tables.forEach(table => {",
+							"        if (table.foreignKeys && table.foreignKeys.length > 0) {",
+							"            hasForeignKeys = true;",
+							"        }",
+							"    });",
+							"    pm.expect(hasForeignKeys).to.be.true;",
+							"});",
+							"",
+							"pm.test('Mermaid includes relationships', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data.mermaid).to.include('erDiagram');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"sql\": \"CREATE TABLE authors (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(100) NOT NULL, email VARCHAR(100) UNIQUE); CREATE TABLE books (id INT AUTO_INCREMENT PRIMARY KEY, author_id INT NOT NULL, title VARCHAR(200) NOT NULL, isbn VARCHAR(20) UNIQUE, published_date DATE, FOREIGN KEY (author_id) REFERENCES authors(id) ON DELETE CASCADE); CREATE TABLE reviews (id INT AUTO_INCREMENT PRIMARY KEY, book_id INT NOT NULL, reviewer_name VARCHAR(100), rating INT CHECK (rating >= 1 AND rating <= 5), comment TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE);\",\n  \"dialect\": \"mysql\",\n  \"options\": {\n    \"includeIndexes\": true,\n    \"includeActions\": true\n  }\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/parse",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "parse"]
+				},
+				"description": "Test parsing of complex schema with multiple tables and foreign key relationships"
+			},
+			"response": []
+		},
+		{
+			"name": "Performance Test - Large Schema",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status code is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Parse time is acceptable', function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.metadata.parseTimeMs).to.be.below(1000);",
+							"});",
+							"",
+							"pm.test('Response time is under 2 seconds', function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"sql\": \"CREATE TABLE table1 (id INT PRIMARY KEY, col1 VARCHAR(100), col2 INT, col3 DECIMAL(10,2)); CREATE TABLE table2 (id INT PRIMARY KEY, col1 VARCHAR(100), col2 INT, col3 DECIMAL(10,2)); CREATE TABLE table3 (id INT PRIMARY KEY, col1 VARCHAR(100), col2 INT, col3 DECIMAL(10,2)); CREATE TABLE table4 (id INT PRIMARY KEY, col1 VARCHAR(100), col2 INT, col3 DECIMAL(10,2)); CREATE TABLE table5 (id INT PRIMARY KEY, col1 VARCHAR(100), col2 INT, col3 DECIMAL(10,2)); CREATE TABLE table6 (id INT PRIMARY KEY, col1 VARCHAR(100), col2 INT, col3 DECIMAL(10,2)); CREATE TABLE table7 (id INT PRIMARY KEY, col1 VARCHAR(100), col2 INT, col3 DECIMAL(10,2)); CREATE TABLE table8 (id INT PRIMARY KEY, col1 VARCHAR(100), col2 INT, col3 DECIMAL(10,2)); CREATE TABLE table9 (id INT PRIMARY KEY, col1 VARCHAR(100), col2 INT, col3 DECIMAL(10,2)); CREATE TABLE table10 (id INT PRIMARY KEY, col1 VARCHAR(100), col2 INT, col3 DECIMAL(10,2));\",\n  \"dialect\": \"mysql\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/parse",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "parse"]
+				},
+				"description": "Test performance with larger schema (10 tables)"
+			},
+			"response": []
+		}
+	]
 }
