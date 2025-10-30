@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useApiHealth } from '../hooks/useApiHealth';
+import logo from '../assets/logo.png';
 import './Header.scss';
 
 export const Header: React.FC = () => {
@@ -10,7 +11,7 @@ export const Header: React.FC = () => {
   return (
     <header className="app-header">
       <h1 className="app-title">
-        <span className="title-text">SQLhelper</span>
+        <img src={logo} alt="SQLhelper Logo" className="app-logo" />
       </h1>
 
       <div className="header-actions">
