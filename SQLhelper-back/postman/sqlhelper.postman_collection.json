@@ -1,0 +1,145 @@
+{
+  "info": {
+    "name": "SQLhelper - Collection",
+    "_postman_id": "sqlhelper-collection",
+    "description": "Colección para probar manualmente la API SQLhelper (health, detect, parse)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/health",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Detect Dialect - MySQL Example",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sql\": \"CREATE TABLE users (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(50));\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/detect",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "detect"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Detect Dialect - PostgreSQL Example",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sql\": \"CREATE TABLE posts (id SERIAL PRIMARY KEY, data JSONB);\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/detect",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "detect"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Parse DDL - MySQL (Mermaid + DBML + JSON)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sql\": \"CREATE TABLE users (\\n  id INT AUTO_INCREMENT PRIMARY KEY,\\n  username VARCHAR(50) NOT NULL UNIQUE,\\n  email VARCHAR(255) NOT NULL,\\n  department_id INT,\\n  INDEX idx_email (email),\\n  FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL\\n) ENGINE=InnoDB;\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/parse",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "parse"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Parse DDL - PostgreSQL (infer dialect + options)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sql\": \"CREATE TABLE posts (\\n  id SERIAL PRIMARY KEY,\\n  data JSONB,\\n  created_at TIMESTAMP DEFAULT now()\\n);\",\n  \"options\": { \"inferDialect\": true, \"includeIndexes\": true }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/parse",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "parse"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
