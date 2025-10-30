@@ -1,0 +1,175 @@
+// Editor panel styles
+.editor-panel-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg-color);
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-lg) var(--space-xl);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--card-bg);
+
+    h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .panel-actions {
+      .dialect-selector {
+        padding: var(--space-sm) var(--space-md);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        background: var(--input-bg);
+        color: var(--text-color);
+        font-size: 0.875rem;
+        min-width: 120px;
+
+        &:focus {
+          outline: none;
+          border-color: var(--primary-color);
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+      }
+    }
+  }
+
+  .sql-input-area {
+    flex: 1;
+    position: relative;
+    padding: var(--space-lg);
+
+    &.drag-over {
+      .sql-textarea {
+        border-color: var(--primary-color);
+        background: rgba(59, 130, 246, 0.05);
+      }
+    }
+
+    .sql-textarea {
+      width: 100%;
+      height: 100%;
+      padding: var(--space-lg);
+      border: 2px dashed var(--border-color);
+      border-radius: var(--radius-lg);
+      background: var(--input-bg);
+      color: var(--text-color);
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      resize: none;
+      transition: all var(--transition-fast);
+
+      &:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        border-style: solid;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      &::placeholder {
+        color: var(--text-light);
+        font-style: italic;
+      }
+    }
+
+    .drag-overlay {
+      position: absolute;
+      top: var(--space-lg);
+      left: var(--space-lg);
+      right: var(--space-lg);
+      bottom: var(--space-lg);
+      background: rgba(59, 130, 246, 0.1);
+      border: 2px dashed var(--primary-color);
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+
+      .drag-message {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        text-align: center;
+      }
+    }
+  }
+
+  .panel-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-lg) var(--space-xl);
+    border-top: 1px solid var(--border-color);
+    background: var(--card-bg);
+    gap: var(--space-md);
+
+    .file-actions,
+    .parse-actions {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    .action-btn {
+      padding: var(--space-sm) var(--space-md);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: var(--button-bg);
+      color: var(--text-color);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+
+      &:hover {
+        background: var(--button-hover-bg);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+      }
+
+      &.primary {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+
+        &:hover {
+          background: var(--primary-hover);
+        }
+      }
+
+      &.secondary {
+        background: var(--sidebar-bg);
+        border-color: var(--border-color);
+      }
+
+      &.danger {
+        background: var(--error-color);
+        color: white;
+        border-color: var(--error-color);
+
+        &:hover {
+          background: #dc2626;
+        }
+      }
+    }
+  }
+}
