@@ -70,8 +70,69 @@ SQLhelper/
 - Node.js 20.0.0 or higher
 - npm or yarn
 - Git
+- Docker and Docker Compose (for containerized deployment)
 
 ## Installation
+
+### Option 1: Docker (Recommended)
+
+#### Quick Start with Pre-built Images
+
+Use Docker Hub images (no build required):
+
+```bash
+# Clone the repository
+git clone https://github.com/andresazcona/SQLhelper.git
+cd SQLhelper
+
+# Run using pre-built images from Docker Hub
+docker-compose -f docker-compose.pull.yml up -d
+```
+
+**Available images:**
+- Backend: [`andresazcona/sqlhelper-backend`](https://hub.docker.com/r/andresazcona/sqlhelper-backend)
+- Frontend: [`andresazcona/sqlhelper-frontend`](https://hub.docker.com/r/andresazcona/sqlhelper-frontend)
+
+#### Build from Source
+
+Build and run locally:
+
+```bash
+# Production mode (build from source)
+docker-compose up --build -d
+
+# Development mode (with hot reload)
+docker-compose -f docker-compose.dev.yml up --build
+```
+
+#### Docker Compose Files
+
+- `docker-compose.pull.yml` - Uses pre-built images from Docker Hub (fastest)
+- `docker-compose.yml` - Builds images from source (production)
+- `docker-compose.dev.yml` - Development mode with hot reload and volumes
+
+**Access the application:**
+- Production: http://localhost (Frontend) and http://localhost:3000 (API)
+- Development: http://localhost:5173 (Frontend) and http://localhost:3000 (API)
+
+**Useful commands:**
+
+```bash
+# Stop containers
+docker-compose down
+
+# View logs
+docker-compose logs -f
+
+# Rebuild images
+docker-compose up --build
+
+# Pull latest images from Docker Hub
+docker pull andresazcona/sqlhelper-backend:latest
+docker pull andresazcona/sqlhelper-frontend:latest
+```
+
+### Option 2: Local Development
 
 ### Clone the repository
 

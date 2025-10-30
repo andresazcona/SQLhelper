@@ -206,9 +206,9 @@ app.use(errorHandler);
 
 // Start server
 const server = app.listen(config.port, () => {
-  logger.info(`🚀 Server running on port ${config.port}`);
-  logger.info(`📚 API Documentation available at http://localhost:${config.port}/docs`);
-  logger.info(`🏥 Health check available at http://localhost:${config.port}/health`);
+  logger.info(`Server running on port ${config.port}`);
+  logger.info(`API Documentation available at http://localhost:${config.port}/docs`);
+  logger.info(`Health check available at http://localhost:${config.port}/health`);
 });
 
 // Graceful shutdown

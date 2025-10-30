@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Backend API Service
+  backend:
+    container_name: sqlhelper-backend
+    build:
+      context: ./SQLhelper-back
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - CORS_ORIGIN=http://localhost:80,http://localhost
+    networks:
+      - sqlhelper-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # Frontend Service
+  frontend:
+    container_name: sqlhelper-frontend
+    build:
+      context: ./SQLhelper-front
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - sqlhelper-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+networks:
+  sqlhelper-network:
+    driver: bridge
+
+volumes:
+  backend-logs:
