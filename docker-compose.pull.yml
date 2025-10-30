@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  sqlhelper-backend:
+    image: andresazcona/sqlhelper-backend:latest
+    container_name: sqlhelper-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - CORS_ORIGIN=http://localhost
+    networks:
+      - sqlhelper-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  sqlhelper-frontend:
+    image: andresazcona/sqlhelper-frontend:latest
+    container_name: sqlhelper-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      sqlhelper-backend:
+        condition: service_healthy
+    networks:
+      - sqlhelper-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+networks:
+  sqlhelper-network:
+    driver: bridge
