@@ -21,7 +21,7 @@ class MermaidService {
       flowchart: {
         useMaxWidth: true,
         htmlLabels: true,
-        curve: 'basis'
+        curve: 'stepAfter'
       },
       er: {
         useMaxWidth: true,
