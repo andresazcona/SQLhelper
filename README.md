@@ -10,10 +10,12 @@
 
 Paste SQL DDL, get an entity-relationship diagram. SQLhelper parses `CREATE TABLE` statements from MySQL, PostgreSQL, SQLite, SQL Server and Oracle, and renders them as [Mermaid](https://mermaid.js.org/) ER diagrams. The API also returns DBML and a JSON representation of the schema.
 
-![SQLhelper, light theme](docs/screenshot.png)
+![SQLhelper: type DDL, parse it, get the ER diagram](docs/demo.gif)
 
 <details>
-<summary>Dark theme</summary>
+<summary>Screenshots</summary>
+
+![SQLhelper, light theme](docs/screenshot.png)
 
 ![SQLhelper, dark theme](docs/screenshot-dark.png)
 
