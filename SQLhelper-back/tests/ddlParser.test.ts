@@ -79,7 +79,8 @@ describe('DdlParserService', () => {
       
       // Check SERIAL column
       const idColumn = table.columns.find(col => col.name === 'id');
-      expect(idColumn?.type.type).toBe('SERIAL');
+      // SERIAL is normalized to INTEGER + autoIncrement by the parser
+      expect(idColumn?.type.type).toBe('INTEGER');
       expect(idColumn?.autoIncrement).toBe(true);
       
       // Check JSONB column
